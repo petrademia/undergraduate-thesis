@@ -1,0 +1,9 @@
+client/
+twitter/
+dataset/
+Image/dataset
+Image/weights
+Text/dataset
+Text/weights
+server/dataset
+server/weights
