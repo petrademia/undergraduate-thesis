@@ -271,7 +271,13 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     return resized
 
 def predict_image(image_url):
-    file = io.BytesIO(urlopen(image_url).read())
+    
+#    with urlopen(image_url) as url:
+#        with open('temp.jpg', 'wb') as f:
+#            f.write(url.read())
+    
+    image = urlopen(image_url).read()
+    file = io.BytesIO(image)
     img = Image.open(file)
     if img.format != 'JPG':
         img = img.convert('RGB')

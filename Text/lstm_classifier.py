@@ -54,15 +54,15 @@ model.add(Dense(3, activation='softmax'))
 model.summary()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-model.fit(X_train, y_train, batch_size=batch_size, epochs=1000, validation_data=(X_test, y_test), callbacks = callbacks)
-score, acc = model.evaluate(X_test, y_test, batch_size=batch_size)
+#model.fit(X_train, y_train, batch_size=batch_size, epochs=1000, validation_data=(X_test, y_test), callbacks = callbacks)
+#score, acc = model.evaluate(X_test, y_test, batch_size=batch_size)
 
 #weights = model.get_layer(index=1).get_weights()
 #tsne = TSNE(n_components = 3, random_state = 0)
 #transformed_weights = tsne.fit_transform(weights)
 
-print('Test score:', score)
-print('Test accuracy:', acc)
+#print('Test score:', score)
+#print('Test accuracy:', acc)
 
 # this returns a tensor
 #inputs = Input(shape=(sequence_length,), dtype='int32')

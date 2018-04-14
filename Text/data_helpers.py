@@ -17,9 +17,9 @@ def load_data_and_labels():
 #    negative_examples = list(open("./data/rt-polarity.neg", "r", encoding='latin-1').readlines())
 #    negative_examples = [s.strip() for s in negative_examples]
     
-    banjir_tweets = list(open("dataset-cutted/banjir.json", "r").readlines())
-    kebakaran_tweets = list(open("dataset-cutted/macet.json", "r").readlines())
-    macet_tweets = list(open("dataset-cutted/kebakaran.json", "r").readlines())
+    banjir_tweets = list(open("dataset/banjir.json", "r").readlines())
+    kebakaran_tweets = list(open("dataset/macet.json", "r").readlines())
+    macet_tweets = list(open("dataset/kebakaran.json", "r").readlines())
     
     banjir_tweets = banjir_tweets[0:50000]
     kebakaran_tweets = kebakaran_tweets[0:50000]

@@ -63,6 +63,9 @@ model = Sequential()
 model.add((LSTM(128, dropout=0.2, recurrent_dropout=0.2, batch_input_shape=(None, 30, 128))))
 model.add(Dense(3, activation='softmax'))
 model.summary()
+
+
+
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.fit(intermediate_X_train, y_train, batch_size=32, epochs=1000, validation_data = (intermediate_X_test, y_test), callbacks = callbacks)
 
