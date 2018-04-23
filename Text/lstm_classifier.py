@@ -45,17 +45,17 @@ callbacks = [tensorboard, checkpoint, early_stopping]
 
 model = Sequential()
 model.add(Embedding(vocabulary_size, 128, input_length=sequence_length))
-#model.add(Conv1D(64, 3, strides=1, activation='relu'))
-#model.add(Conv1D(64, 4, strides=1, activation='relu'))
-#model.add(Conv1D(64, 5, strides=1, activation='relu'))
+model.add(Conv1D(64, 3, strides=1, activation='relu'))
+model.add(Conv1D(64, 4, strides=1, activation='relu'))
+model.add(Conv1D(64, 5, strides=1, activation='relu'))
 #model.add(Flatten())
 model.add((LSTM(128, dropout=0.2, recurrent_dropout=0.2)))
 model.add(Dense(3, activation='softmax'))
 model.summary()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-#model.fit(X_train, y_train, batch_size=batch_size, epochs=1000, validation_data=(X_test, y_test), callbacks = callbacks)
-#score, acc = model.evaluate(X_test, y_test, batch_size=batch_size)
+model.fit(X_train, y_train, batch_size=batch_size, epochs=1000, validation_data=(X_test, y_test), callbacks = callbacks)
+score, acc = model.evaluate(X_test, y_test, batch_size=batch_size)
 
 #weights = model.get_layer(index=1).get_weights()
 #tsne = TSNE(n_components = 3, random_state = 0)
