@@ -12,19 +12,61 @@ from keras.layers import Flatten
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers.normalization import BatchNormalization
-from keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
+from keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping, Callback
 from keras import backend as K
-from keras.engine.topology import Layer, InputSpec
+from keras.engine.topology import Layer
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
-from imutils import paths
 import numpy as np
 import os
 import cv2
+from time import time
 from PIL import Image
 from quiver_engine import server
 
+def precision(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def recall(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+def f1(y_true, y_pred):
+    
+    def recall(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+    
+    def precision(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+    
+    precision = precision(y_true, y_pred)
+    recall = recall(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall))
+
+class TimingCallback(Callback):
+    def on_train_begin(self, logs={}):
+        self.logs = []
+        
+    def on_epoch_begin(self, epoch, logs={}):
+        self.starttime = time()
+        
+    def on_epoch_end(self, epoch, logs={}):
+        self.logs.append(time() - self.starttime)
+        
+
+    
 class LocalResponseNormalization(Layer):
     
     def __init__(self, n=5, alpha=0.0005, beta=0.75, k=2, **kwargs):
@@ -65,18 +107,21 @@ value_shift = 0.1
 value_range = 0.2
 rotation_degree = 20
 
-tensorboard = TensorBoard(log_dir='./Graph/one_fourth_alexnet', histogram_freq=0,  
+tensorboard = TensorBoard(log_dir='./Graph/one_fourth_alexnet_augmented', histogram_freq=0,  
           write_graph=True, write_images=True)
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True)
 early_stopping = EarlyStopping(monitor='val_loss', verbose=1, patience=10)
+timing_callback = TimingCallback()
 
-callbacks = [tensorboard, checkpoint]
+callbacks = [tensorboard, timing_callback]
+
+#callbacks = [tensorboard, checkpoint]
 
 #callbacks = [tensorboard, checkpoint, early_stopping]
 
-train_set = '../dataset/image/training_set/'
+train_set = '../dataset/image/training_set_augmented/'
 
-test_set = '../dataset/image/test_set/'
+test_set = '../dataset/image/test_set_augmented/'
 
 file_to_write = open('log.txt', mode='w+')
 
@@ -166,28 +211,29 @@ classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dropout(0.5))
 classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dense(units = num_classes, activation = 'softmax'))
-classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy', precision, recall, f1])
 
-train_datagen = ImageDataGenerator(rescale = 1./255,
-                                   shear_range = value_range,
-                                   zoom_range = value_range,
-                                   rotation_range = rotation_degree,
-                                   width_shift_range = value_shift,
-                                   height_shift_range = value_shift,
-                                   horizontal_flip = True,
-                                   samplewise_center = True,
-                                   samplewise_std_normalization = True)
 
-test_datagen = ImageDataGenerator(rescale = 1./255,
-                                  shear_range = value_range,
-                                  zoom_range = value_range,
-                                  rotation_range = rotation_degree,
-                                  width_shift_range = value_shift,
-                                  height_shift_range = value_shift,
-                                  horizontal_flip = True,
-                                  samplewise_center = True,
-                                  samplewise_std_normalization = True)
-
+#train_datagen = ImageDataGenerator(rescale = 1./255,
+#                                   shear_range = value_range,
+#                                   zoom_range = value_range,
+#                                   rotation_range = rotation_degree,
+#                                   width_shift_range = value_shift,
+#                                   height_shift_range = value_shift,
+#                                   horizontal_flip = True,
+#                                   samplewise_center = True,
+#                                   samplewise_std_normalization = True)
+#
+#test_datagen = ImageDataGenerator(rescale = 1./255,
+#                                  shear_range = value_range,
+#                                  zoom_range = value_range,
+#                                  rotation_range = rotation_degree,
+#                                  width_shift_range = value_shift,
+#                                  height_shift_range = value_shift,
+#                                  horizontal_flip = True,
+#                                  samplewise_center = True,
+#                                  samplewise_std_normalization = True)
+#
 #training_set = train_datagen.flow_from_directory('../dataset/image/training_set',
 #                                                 target_size = (227, 227),
 #                                                 batch_size = 32,
@@ -205,11 +251,20 @@ test_datagen = ImageDataGenerator(rescale = 1./255,
 #test_set = (x_test, y_test)
 
 #classifier.fit_generator(training_set,
-#                         steps_per_epoch = 6000,
+#                         steps_per_epoch = 3000,
 #                         epochs = 1000,
 #                         validation_data = test_set,
-#                         validation_steps = 1200, callbacks = callbacks)
+#                         validation_steps = 600, callbacks = callbacks)
 
-classifier.fit(x_train, y_train, validation_data = (x_test, y_test), epochs = 50, callbacks = callbacks)
+classifier.fit(x_train, y_train, validation_data = (x_test, y_test), epochs = 10, callbacks = callbacks)
+
+y_test_non_categorized = [np.argmax(single_test) for single_test in y_test]
+
+y_pred = classifier.predict(x_test)
+
+y_pred_non_categorized = [np.argmax(single_pred) for single_pred in y_pred]
+
+from sklearn.metrics import confusion_matrix
+conf_mat = confusion_matrix(y_test_non_categorized, y_pred_non_categorized)
 
 

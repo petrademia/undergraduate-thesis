@@ -74,7 +74,7 @@ callbacks = [tensorboard, checkpoint]
 
 #callbacks = [tensorboard, checkpoint, early_stopping]
 
-train_set = '../dataset/image/training_set/'
+train_set = '../dataset/image/training_set_augmented_zca/'
 
 test_set = '../dataset/image/test_set/'
 
@@ -149,7 +149,6 @@ for index_dir, subdir in enumerate(dirs):
 y_test = to_categorical(y_test, num_classes = num_classes)
 
 classifier = Sequential()
-
 classifier.add(Conv2D(96, (11, 11), strides = 4, input_shape = (227, 227, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (3, 3), strides = 2))
 classifier.add(LocalResponseNormalization())
@@ -161,9 +160,9 @@ classifier.add(Conv2D(384, (3, 3), strides = 1, padding = "same", activation = '
 classifier.add(Conv2D(256, (3, 3), strides = 1, padding = "same", activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (3, 3), strides = 2))
 classifier.add(Flatten())
-#classifier.add(Dropout(0.5))
+classifier.add(Dropout(0.5))
 classifier.add(Dense(units = 1024, activation = 'relu'))
-#classifier.add(Dropout(0.5))
+classifier.add(Dropout(0.5))
 classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dense(units = num_classes, activation = 'softmax'))
 classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])

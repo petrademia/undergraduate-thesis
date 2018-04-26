@@ -19,7 +19,7 @@ from sklearn.manifold import TSNE
 print ('Loading data')
 x, y, vocabulary, vocabulary_inv = load_data()
 
-X_train, X_test, y_train, y_test = train_test_split( 
+X_train, X_test, y_train, y_test = train_test_split()
 #tsne = TSNE(n_componx, y, test_size=0.2, random_state=42)
 
 sequence_length = x.shape[1]
