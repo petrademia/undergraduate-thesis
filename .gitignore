@@ -7,3 +7,4 @@ Text/dataset
 Text/weights
 server/dataset
 server/weights
+Image/*.npy

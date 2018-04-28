@@ -212,6 +212,8 @@ classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dense(units = num_classes, activation = 'softmax'))
 classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy', precision, recall, f1])
 
+classifier.summary()
+
 #classifier.add(Conv2D(24, (11, 11), strides = 4, input_shape = (227, 227, 3), activation = 'relu'))
 #classifier.add(MaxPooling2D(pool_size = (3, 3), strides = 2))
 #classifier.add(LocalResponseNormalization())

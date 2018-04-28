@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 16 08:28:01 2018
-
-@author: Chastine
-"""
-
 from keras.models import Sequential, load_model
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
@@ -12,17 +5,19 @@ from keras.layers import Flatten
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers.normalization import BatchNormalization
-from keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
+from keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping, Callback
 from keras import backend as K
-from keras.engine.topology import Layer, InputSpec
+from keras.engine.topology import Layer
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
-from imutils import paths
 import numpy as np
 import os
 import cv2
+from time import time
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from quiver_engine import server
 
 def precision(y_true, y_pred):
@@ -114,9 +109,9 @@ callbacks = [tensorboard, checkpoint]
 
 #callbacks = [tensorboard, checkpoint, early_stopping]
 
-train_set = '../dataset/image/training_set/'
+train_set = '../dataset/image/train/'
 
-test_set = '../dataset/image/test_set/'
+test_set = '../dataset/image/test/'
 
 file_to_write = open('log.txt', mode='w+')
 
@@ -208,6 +203,43 @@ classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dense(units = num_classes, activation = 'softmax'))
 classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
+classifier = Sequential()
+classifier.add(Conv2D(32, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(Conv2D(32, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+classifier.add(Conv2D(64, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(Conv2D(64, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+classifier.add(Conv2D(128, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(Conv2D(128, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+classifier.add(Conv2D(256, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(Conv2D(256, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+classifier.add(Conv2D(256, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(Conv2D(256, (3, 3), strides = 1, input_shape = (227, 227, 3), padding = 'same', activation = 'relu'))
+classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+classifier.add(Flatten())
+classifier.add(Dense(units = 1024, activation = 'relu'))
+classifier.add(Dense(units = 1024, activation = 'relu'))
+classifier.add(Dense(units = num_classes, activation = 'softmax'))
+classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+
+np.save('x_train_6class_samplewise.npy', x_train)
+np.save('y_train_6class_samplewise.npy', y_train)
+
+np.save('x_test_6class_samplewise.npy', x_test)
+np.save('y_test_6class_samplewise.npy', y_test)
+
+t = np.load('y_test_6class.npy')
+
+np.save('evaluation_one-fourth-vgg_3class.npy', evaluation)
+
+evaluation_cur = np.load('evaluation_one-fourth-vgg_3class.npy')
+
+evaluation_cur = np.load('evaluation_one-fourth-vgg_3class.npy').item()
+
+evaluation_cur == evaluation
 #classifier.add(Conv2D(24, (11, 11), strides = 4, input_shape = (227, 227, 3), activation = 'relu'))
 #classifier.add(MaxPooling2D(pool_size = (3, 3), strides = 2))
 #classifier.add(LocalResponseNormalization())

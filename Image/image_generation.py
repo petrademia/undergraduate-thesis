@@ -251,7 +251,6 @@ for generated_x, generated_y in training_set:
     flag = 1
     for index in range(0, len(generated_x)):
         image_to_save = generated_x[index]
-        image_to_save = (image_to_save * 255 / np.max(image_to_save)).astype('uint8')
         image_to_save = Image.fromarray(image_to_save)
         index_highest = np.argmax(generated_y[index])
         cat_highest = str(key_classes[index_highest])

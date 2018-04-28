@@ -188,7 +188,7 @@ for index_dir, subdir in enumerate(dirs):
 
 y_test = to_categorical(y_test, num_classes = num_classes)
 
-img_rows, img_cols = 64, 64
+img_rows, img_cols = 227, 227
 
 input_shape = (img_rows, img_cols, 3)
 
@@ -213,6 +213,9 @@ classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dense(units = 1024, activation = 'relu'))
 classifier.add(Dense(units = num_classes, activation = 'softmax'))
 classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+
+classifier.summary()
+
 
 #classifier.add(Conv2D(24, (11, 11), strides = 4, input_shape = (227, 227, 3), activation = 'relu'))
 #classifier.add(MaxPooling2D(pool_size = (3, 3), strides = 2))
@@ -268,4 +271,4 @@ classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metric
 #                         validation_data = test_set,
 #                         validation_steps = 600, callbacks = callbacks)
 
-classifier.fit(x_train_zca, y_train_zca, validation_data = (x_test, y_test), epochs = 50)
+classifier.fit(x_train_zca, y_train_zca, epochs = 50)
